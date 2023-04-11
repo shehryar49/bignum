@@ -68,7 +68,7 @@ public:
         byte1 = bytes[k];
         byte2 = rhs.bytes[k];
         b = 255-byte2;
-        if(byte1 > b) //carry generated
+        if(byte1 > b || (byte1+byte2==255 && carry)) //carry generated
         {
             nextcarry = true;
             byte1 = byte1-b-1;
@@ -170,6 +170,20 @@ public:
         res.bytes.push_back(0x80);
     }
     return res;
+  }
+  void printBin()
+  {
+    for(auto e: bytes)
+    {
+        uint8_t m = 1;
+        cout<<"byte: "<<(int)e<<endl;
+        for(int i=1;i<=8;i++)
+        {
+            cout<<((e&m) != 0);
+            m<<=1;
+        }
+        cout<<endl;
+    }
   }
   bignum operator*(const bignum& rhs)const
   {
