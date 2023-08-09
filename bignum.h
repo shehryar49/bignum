@@ -1,8 +1,14 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <algorithm>
 using namespace std;
-
+/*
+TODO
+----
+Improve multiplication and division algos
+Overload more operators
+*/
 class bignum//hexadecimal bignum
 {
 private:
@@ -11,9 +17,10 @@ private:
 public:
   bignum(string s)
   {
-     size_t k = s.length()-1;
+     size_t len = s.length();
+     size_t k = (int)len -1;
      uint8_t byte = 0;
-     for(size_t j=1;j<=s.length();j++,--k)
+     for(size_t j=1;j<=len;j++,--k)
      {
         uint8_t ch = s[k];
         if(ch>='0' && ch<='9')
@@ -125,6 +132,34 @@ public:
     }
     return res;
   }
+  void increment()
+  {
+    size_t k = 0;
+    uint8_t byte1 = 0;
+    bool carry = 1; //max carry that can go from one byte to another is 1
+    
+    while(k<bytes.size())
+    {
+        byte1 = bytes[k];
+        if(carry)
+        {
+          if(byte1==255)
+            byte1 = 0;
+          else
+          {
+            byte1+=1;
+            carry = false;
+          }
+        }
+        bytes[k] = byte1;
+        k++;
+    }
+    if(carry)
+    {
+      bytes.push_back(1);
+    }
+    return;
+  }
   bignum operator<<(int n)
   {
     uint8_t mask = 0x80;
@@ -177,12 +212,7 @@ public:
     {
         uint8_t m = 1;
         cout<<"byte: "<<(int)e<<endl;
-        for(int i=1;i<=8;i++)
-        {
-            cout<<((e&m) != 0);
-            m<<=1;
-        }
-        cout<<endl;
+        
     }
   }
   bignum operator*(const bignum& rhs)const
@@ -217,6 +247,8 @@ public:
     {
         if(bytes[i] < rhs.bytes[i])
           return true;
+        else if(bytes[i] > rhs.bytes[i])
+          return false;
     }
     return false;
   }
@@ -230,6 +262,8 @@ public:
     {
         if(bytes[i] > rhs.bytes[i])
           return true;
+        else if(bytes[i] < rhs.bytes[i])
+          return false;
     }
     return false;
   }
@@ -353,14 +387,15 @@ public:
        j = e & mask2;
        i = i>>4;
        if(j<=9)
-         s=(char)(48+j)+s;
+         s+=(char)(48+j);
        else 
-         s=(char)(87+j)+s;
+         s+=(char)(87+j);
        if(i<=9)
-         s=(char)(48+i)+s;
+         s+=(char)(48+i);
        else 
-         s=(char)(87+i)+s;
+         s+=(char)(87+i);
     }
-    return ((sign) ? "-" : "") +s;
+    std::reverse(s.begin(),s.end());
+    return ((sign) ? "-0x" : "0x") +s;
   }
 };
