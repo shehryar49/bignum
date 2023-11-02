@@ -115,10 +115,12 @@ public:
       return true;
     if(!sign && rhs.sign)
       return false;
+    //signs are same
+
     if(l1 < l2 )
-      return true;
+      return !sign;
     else if(l1 > l2)
-      return false;
+      return sign;
     //lengths are equal
     size_t k = l1 - 1;
     size_t i = 1;
@@ -126,7 +128,7 @@ public:
     while(i<=l1)
     {
       if(val[k] > rhs.val[k])
-        return false;
+        return sign;
       equal = val[k] == rhs.val[k];
       i++;
       k--;
@@ -137,17 +139,23 @@ public:
   {
     size_t l1 = val.length();
     size_t l2 = rhs.val.length();
-    if(l1 < l2 || (sign && !rhs.sign))
+    if(sign && !rhs.sign)
       return true;
-    else if(l1 > l2 || (!sign && rhs.sign))
+    if(!sign && rhs.sign)
       return false;
+    //signs are same
+
+    if(l1 < l2 )
+      return !sign;
+    else if(l1 > l2)
+      return sign;
     //lengths are equal
     size_t k = l1 - 1;
     size_t i = 1;
     while(i<=l1)
     {
       if(val[k] > rhs.val[k])
-        return false;
+        return sign; 
       i++;
       k--;
     }
@@ -288,7 +296,8 @@ int main()
   bignum b("-1000");
   bignum one("1");
   bignum c = a-b;
-  printf("a<b = %d\n",(a<b));
+//  printf("a>=b = %d\n",(a>=b));
+//  return 0;
   while(a >= b)
   {
   printf("a = %s\n",a.str().c_str());
