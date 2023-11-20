@@ -41,8 +41,7 @@ public:
   bignum operator-(const bignum& rhs)const;
   bignum operator/(const bignum& rhs)const;
   bignum operator*(const bignum& rhs)const;
-  void add(const bignum& rhs);
-  void mul(const bignum& rhs);
+  void addMag(const bignum& rhs);
   bool operator==(const bignum& rhs)const;
   bool operator!=(const bignum& rhs)const;
   bool operator<(const bignum& rhs)const;

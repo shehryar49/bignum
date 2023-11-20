@@ -126,22 +126,8 @@ bignum bignum::operator+(const bignum& rhs)const
   res.sign = ansNeg;
   return res;
 }
-void bignum::add(const bignum& rhs)
+void bignum::addMag(const bignum& rhs)
 {
-  /*if(sign && !rhs.sign)
-  {
-    static bignum aux;
-    aux = *this;
-    aux.sign = false;
-    return rhs - aux;
-  }
-  else if(!sign && rhs.sign)
-  {
-    bignum tmp = rhs;
-    tmp.sign = false;
-    return (*this) - tmp;
-  }*/
-  bool ansNeg = sign && rhs.sign;
   size_t i = 0;
   size_t j = 0;
   size_t l1 = this->val.length();
@@ -189,7 +175,6 @@ void bignum::add(const bignum& rhs)
   }
   if(carry)
     val.push_back('1');
-  sign = ansNeg;
 }
 bool bignum::operator==(const bignum& rhs)const
 {
@@ -374,7 +359,6 @@ bignum bignum::operator*(const bignum& rhs)const
   if(l1 > l2)
     return rhs * (*this);
   bignum res;
-  res.val.clear();
   bignum row;
   static int8_t mods[] = {
   0,
@@ -578,231 +562,13 @@ bignum bignum::operator*(const bignum& rhs)const
       row.val.push_back(48 + carry);
   //  printf("row.val = %s\n",row.str().c_str());
     //res = res + row;
-    res.add(row);
+    res.addMag(row);
     row.val.insert(row.val.begin(),'0');
   }
   res.sign = ansNeg;
   return res;
 }
-void bignum::mul(const bignum& rhs)
-{
-  //Also not the best algo
-  //will improve in future
-  bool ansNeg = sign ^ rhs.sign;
-  size_t l1 = val.length();
-  printf("l2 = %zu\n",rhs.val.length());
-  size_t l2 = rhs.val.length();
-  bignum res;
-  res.val.clear();
-  bignum row;
-  static int8_t mods[] = {
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9
-};
-  static int8_t divs[] = {
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  1,
-  2,
-  2,
-  2,
-  2,
-  2,
-  2,
-  2,
-  2,
-  2,
-  2,
-  3,
-  3,
-  3,
-  3,
-  3,
-  3,
-  3,
-  3,
-  3,
-  3,
-  4,
-  4,
-  4,
-  4,
-  4,
-  4,
-  4,
-  4,
-  4,
-  4,
-  5,
-  5,
-  5,
-  5,
-  5,
-  5,
-  5,
-  5,
-  5,
-  5,
-  6,
-  6,
-  6,
-  6,
-  6,
-  6,
-  6,
-  6,
-  6,
-  6,
-  7,
-  7,
-  7,
-  7,
-  7,
-  7,
-  7,
-  7,
-  7,
-  7,
-  8,
-  8,
-  8,
-  8,
-  8,
-  8,
-  8,
-  8,
-  8,
-  8
-};
-  for(size_t i=0;i<l1;i++)
-  {
-    char ch1 = val[i];
-    row.val.erase(row.val.begin()+i,row.val.end());
-    int8_t carry = 0;
- //   printf("ch1 = %c\n",ch1);
-    for(size_t j=0;j<l2;j++)
-    {
-      char ch2 = rhs.val[j];
-      int8_t ans = (ch1 - 48) * (ch2 - 48) + carry;
-   //   printf("%c * %c = %d\n",ch1,ch2,ans);
-      row.val.push_back(48 + mods[ans]);
-      carry = divs[ans];
-    }
-    if(carry)
-      row.val.push_back(48 + carry);
-  //  printf("row.val = %s\n",row.str().c_str());
-    //res = res + row;
-    res.add(row);
-    row.val.insert(row.val.begin(),'0');
-  }
-  sign = ansNeg;
-  val = res.val;
-}
+
 void bignum::decrementMag()
 {
   if(val == "0" || (val == "1" && sign))
@@ -1143,13 +909,16 @@ void test_revloop()
 }
 void test_mul()
 {
+  puts("--Test multiplication--");
+ //+ve * +ve
  bignum m("123");
  bignum n("456");
  panic((m*n).str() == "56088","test_mul(1) failed");
  bignum a("3489348348");
- bignum b("348943898348934");
+ bignum b("-348943898348934");
  bignum c = a*b;
- panic(c.str() == "1217586815248532780461032","test_mul(2) failed");
+ panic(c.str() == "-1217586815248532780461032","test_mul(2) failed");
+ puts("(Success)");
 }
 void test_addmethod()
 {
@@ -1165,16 +934,14 @@ void benchmark1()
   bignum ans("1");
   while(k <= n)
   {
-    //printf("%s\n",k.str().c_str());
     ans = ans * k;
-    //ans.mul(k);
     k.incrementMag();//faster
   }
   printf("%s\n",ans.str().c_str());
 }
 int main()
 {
-  /*test_init();
+  test_init();
   test_cmp();
   test_addition();
   test_subtraction();
@@ -1182,12 +949,12 @@ int main()
   test_increment();
   test_incrementMag();
   test_decrement();
-  test_decrementMag();*/
- // test_fwdloop();
- // test_revloop();
- //test_mul();
+  test_decrementMag();
+  test_fwdloop();
+  test_revloop();
+  test_mul();
+  test_addmethod();
   benchmark1();
-   //test_addmethod();
 }
 /*
 123.mul(456)
